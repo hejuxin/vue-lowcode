@@ -19,6 +19,7 @@ export default defineComponent({
     const config = inject('config');
 
     const contentRef = ref(null);
+    let currentComponent = null;
 
     const dragenter = (e) => {
       e.dataTransfer.dropEffect = 'move';
@@ -26,16 +27,38 @@ export default defineComponent({
 
     const dragover = (e) => {
       e.preventDefault();
-  }
+    }
 
     const dragleave = (e) => {
       e.dataTransfer.dropEffect = 'none';
     }
 
-    const handleDragStart = (e) => {
+    const drop = e => {
+      const blocks = data.value.blocks;
+      const newData = {
+        ...data.value,
+        blocks: [
+          ...blocks,
+          {
+            top: e.offsetY,
+            left: e.offsetX,
+            zIndex: 1,
+            key: currentComponent.key
+          }
+        ]
+      }
+
+      currentComponent = null;
+
+      console.log(newData)
+    }
+
+    const handleDragStart = (e, component) => {
+      currentComponent = component;
       contentRef.value.addEventListener('dragenter', dragenter);
-      contentRef.value.addEventListener('dragover', dragover)
-      contentRef.value.addEventListener('dragleave', dragleave)
+      contentRef.value.addEventListener('dragover', dragover);
+      contentRef.value.addEventListener('dragleave', dragleave);
+      contentRef.value.addEventListener('drop', drop);
     }
 
     return () => (
@@ -48,7 +71,7 @@ export default defineComponent({
                   class="editor-left-item"
                   key={component.key}
                   draggable
-                  onDragstart={handleDragStart}
+                  onDragstart={e => handleDragStart(e, component)}
                 >
                   <span>{component.label}</span>
                   <div>{component.preview()}</div>
