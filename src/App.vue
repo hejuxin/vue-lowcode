@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <Editor v-model="state"></Editor>
-    <!-- <Editor :modalValue="state" @update:modalValue></Editor> -->
+    <!-- <Editor :modelValue="state" @update:modelValue></Editor> -->
   </div>
 </template>
 
