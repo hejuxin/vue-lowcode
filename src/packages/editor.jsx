@@ -1,4 +1,5 @@
 import { defineComponent, computed, inject } from "vue";
+import EditorBlock from "./editor-block";
 import './editor.scss';
 
 export default defineComponent({
@@ -41,19 +42,7 @@ export default defineComponent({
             <div className="editor-container-content-canvas" style={contentStyles.value}>
               {
                 data.value.blocks.map(block => {
-                  const blockStyles = {
-                    top: `${block.top}px`,
-                    left: `${block.left}px`,
-                    zIndex: block.zIndex
-                  }
-
-                  const component = config.componentMap[block.key];
-                  const RenderComponent = component.render();
-                  return (
-                    <div class="editor-block" style={blockStyles}>
-                      {RenderComponent}
-                    </div>
-                  )
+                  return <EditorBlock block={block} key={block.key}></EditorBlock>
                 })
               }
             </div>
