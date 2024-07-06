@@ -39,7 +39,23 @@ export default defineComponent({
           <div className="editor-container-top">top content</div>
           <div className="editor-container-content">
             <div className="editor-container-content-canvas" style={contentStyles.value}>
-              content
+              {
+                data.value.blocks.map(block => {
+                  const blockStyles = {
+                    top: `${block.top}px`,
+                    left: `${block.left}px`,
+                    zIndex: block.zIndex
+                  }
+
+                  const component = config.componentMap[block.key];
+                  const RenderComponent = component.render();
+                  return (
+                    <div class="editor-block" style={blockStyles}>
+                      {RenderComponent}
+                    </div>
+                  )
+                })
+              }
             </div>
           </div>
         </div>
