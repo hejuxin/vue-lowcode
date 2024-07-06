@@ -4,10 +4,14 @@ import './editor.scss';
 
 export default defineComponent({
   props: ["modelValue"],
-  setup(props) {
+  emits: ["update:modelValue"], // 要触发的事件 - 双向绑定更新事件
+  setup(props, ctx) {
     const data = computed({
       get() {
         return props.modelValue
+      },
+      set(value) {
+        ctx.emit('update:modelValue', value) // 触发双向绑定更新事件
       }
     })
 
@@ -48,9 +52,8 @@ export default defineComponent({
         ]
       }
 
+      data.value = newData;
       currentComponent = null;
-
-      console.log(newData)
     }
 
     const handleDragStart = (e, component) => {
