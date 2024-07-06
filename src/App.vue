@@ -1,12 +1,16 @@
 <template>
   <div class="app">
-    <Editor></Editor>
+    <Editor v-model="state"></Editor>
+    <!-- <Editor :modalValue="state" @update:modalValue></Editor> -->
   </div>
 </template>
 
 <script setup>
-import Editor from './packages/editor'
+import { ref } from 'vue';
+import Editor from './packages/editor';
+import data from './data.json';
 
+const state = ref(data);
 </script>
 
 <style lang="scss">
