@@ -6,11 +6,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, provide } from 'vue';
 import Editor from './packages/editor';
 import data from './data.json';
+import { registerConfigInfo as config } from './utils/register';
 
 const state = ref(data);
+provide('config', config);
 </script>
 
 <style lang="scss">
