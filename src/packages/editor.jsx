@@ -64,6 +64,13 @@ export default defineComponent({
       contentRef.value.addEventListener('drop', drop);
     }
 
+    const handleDragEnd = (e) => {
+      contentRef.value.removeEventListener('dragenter', dragenter);
+      contentRef.value.removeEventListener('dragover', dragover);
+      contentRef.value.removeEventListener('dragleave', dragleave);
+      contentRef.value.removeEventListener('drop', drop);
+    }
+
     return () => (
       <div className="editor">
         <div className="editor-left">
@@ -75,6 +82,7 @@ export default defineComponent({
                   key={component.key}
                   draggable
                   onDragstart={e => handleDragStart(e, component)}
+                  onDragend={handleDragEnd}
                 >
                   <span>{component.label}</span>
                   <div>{component.preview()}</div>
