@@ -26,6 +26,25 @@ export default defineComponent({
     const contentRef = ref(null);
     const { handleDragStart, handleDragEnd } = useMenuDragger(contentRef, data);
 
+    const clearAllFocus = () => {
+      data.value.blocks.forEach(block => block.focus = false)
+    }
+
+    const handleMouseDown = (e, block) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (!e.shiftKey) {
+        // 若不是shift多选，则清空其他focus
+        clearAllFocus();
+      }
+      block.focus = !block.focus;
+    }
+
+    // 点击容器区域，清空所有focus
+    const handleContainerMouseDown = e => {
+      clearAllFocus();
+    }
+
     return () => (
       <div className="editor">
         <div className="editor-left">
@@ -50,10 +69,17 @@ export default defineComponent({
         <div className="editor-container">
           <div className="editor-container-top">top content</div>
           <div className="editor-container-content">
-            <div className="editor-container-content-canvas" style={contentStyles.value} ref={contentRef}>
+            <div className="editor-container-content-canvas" style={contentStyles.value} ref={contentRef} onMousedown={handleContainerMouseDown}>
               {
                 data.value.blocks.map(block => {
-                  return <EditorBlock block={block} key={block.key}></EditorBlock>
+                  return (
+                    <EditorBlock
+                      block={block}
+                      key={block.key}
+                      class={block.focus ? 'editor-block-focus' : ''}
+                      onMousedown={e => handleMouseDown(e, block)}
+                    />
+                  )
                 })
               }
             </div>
