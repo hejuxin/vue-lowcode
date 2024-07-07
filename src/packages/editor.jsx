@@ -30,6 +30,43 @@ export default defineComponent({
       data.value.blocks.forEach(block => block.focus = false)
     }
 
+    let dragState = {
+      startX: 0,
+      startY: 0
+    }
+
+    const focusData = computed(() => {
+      const focus = [];
+      const unfocus = [];
+
+      data.value.blocks.forEach(block => (block.focus ? focus : unfocus).push(block));
+
+      return {
+        focus,
+        unfocus
+      }
+    });
+
+    const mousemove = e => {
+      const durX = e.clientX - dragState.startX;
+      const durY = e.clientY - dragState.startY;
+
+      focusData.value.focus.forEach((block, index) => {
+        // mousemove一直在触发，top与left一直会在变
+        // block.top = block.top + durY;
+        // block.left = block.left + durX;
+
+        const { top, left } = dragState.startPos[index];
+        block.top = top + durY;
+        block.left = left + durX;
+      })
+    }
+
+    const mouseup = e => {
+      document.removeEventListener('mousemove', mousemove);
+      document.removeEventListener('mouseup', mouseup);
+    }
+
     const handleMouseDown = (e, block) => {
       e.stopPropagation();
       e.preventDefault();
@@ -38,6 +75,15 @@ export default defineComponent({
         clearAllFocus();
       }
       block.focus = !block.focus;
+
+      dragState = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startPos: focusData.value.focus.map(blcok => ({ top: blcok.top, left: blcok.left }))
+      }
+
+      document.addEventListener('mousemove', mousemove);
+      document.addEventListener('mouseup', mouseup);
     }
 
     // 点击容器区域，清空所有focus
