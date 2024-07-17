@@ -2,6 +2,8 @@ import { computed, defineComponent, inject, ref } from "vue";
 import EditorBlock from "./editor-block";
 import './editor.scss';
 import { useMenuDragger } from "@/utils/useMenuDragger";
+import { useCommand } from "@/utils/useCommand";
+import deepcopy from "deepcopy";
 
 export default defineComponent({
   props: ["modelValue"],
@@ -51,7 +53,11 @@ export default defineComponent({
       const durX = e.clientX - dragState.startX;
       const durY = e.clientY - dragState.startY;
 
-      focusData.value.focus.forEach((block, index) => {
+      
+      const { queue, current } = data.value;
+      const focusData = queue[current].filter(block => block.focus);
+
+      focusData.forEach((block, index) => {
         // mousemove一直在触发，top与left一直会在变
         // block.top = block.top + durY;
         // block.left = block.left + durX;
@@ -63,6 +69,11 @@ export default defineComponent({
     }
 
     const mouseup = e => {
+      let { queue, current } = data.value;
+      // 鼠标抬起时判断是否移动过
+      if(JSON.stringify(queue[current]) === JSON.stringify(queue[current - 1])) {
+        data.value.current = current - 1
+      }
       document.removeEventListener('mousemove', mousemove);
       document.removeEventListener('mouseup', mouseup);
     }
@@ -76,11 +87,23 @@ export default defineComponent({
       }
       block.focus = !block.focus;
 
+
+      let { queue, current } = data.value;
+      const focusData = queue[current].filter(block => block.focus);
       dragState = {
         startX: e.clientX,
         startY: e.clientY,
-        startPos: focusData.value.focus.map(blcok => ({ top: blcok.top, left: blcok.left }))
+        startPos: focusData.map(blcok => ({ top: blcok.top, left: blcok.left }))
       }
+
+      // 鼠标按下时创建副本
+      const temp = deepcopy(queue[current]);
+      current++;
+      queue[current] = temp;
+      data.value.current = current;
+
+
+      
 
       document.addEventListener('mousemove', mousemove);
       document.addEventListener('mouseup', mouseup);
@@ -90,6 +113,17 @@ export default defineComponent({
     const handleContainerMouseDown = e => {
       clearAllFocus();
     }
+
+
+    const command = useCommand(data);
+
+
+    const buttons = computed(() => (
+      [
+        { label: '撤销', icon: 'icon-back', disabled: data.value.current === 0, handler: () => command.undo() },
+        { label: '重做', icon: 'icon-forward', disabled: data.value.current === data.value.queue.length - 1 ,handler: () => command.redo() }
+      ]
+    ));
 
     return () => (
       <div className="editor">
@@ -113,7 +147,16 @@ export default defineComponent({
         </div>
         <div className="editor-right">right content</div>
         <div className="editor-container">
-          <div className="editor-container-top">top content</div>
+          <div className="editor-container-top">
+            {buttons.value.map((btn, index) => {
+              return (
+                <button disabled={btn.disabled} class="editor-container-top-button" onClick={btn.handler}>
+                  <i class={btn.icon}></i>
+                  <span>{btn.label}</span>
+                </button>
+              )
+            })}
+          </div>
           <div className="editor-container-content">
             <div className="editor-container-content-canvas" style={contentStyles.value} ref={contentRef} onMousedown={handleContainerMouseDown}>
               {

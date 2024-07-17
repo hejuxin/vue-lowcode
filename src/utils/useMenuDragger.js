@@ -19,10 +19,9 @@ export function useMenuDragger(contentRef, data) {
   // drop 松手的时候 根据拖拽的组件 添加一个组件
   const drop = e => {
     const blocks = data.value.blocks;
-    const newData = {
-      ...data.value,
-      blocks: [
-        ...blocks,
+
+    const newBlocks = [
+      ...blocks,
         {
           top: e.offsetY,
           left: e.offsetX,
@@ -30,10 +29,11 @@ export function useMenuDragger(contentRef, data) {
           key: currentComponent.key,
           alignCenter: true
         }
-      ]
-    }
+    ]
 
-    data.value = newData;
+    
+    data.value.current += 1;
+    data.value.queue[data.value.current] = newBlocks;
     currentComponent = null;
   }
 

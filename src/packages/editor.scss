@@ -69,6 +69,7 @@
             align-items: center;
 
             &-button {
+                border: none;
                 width: 60px;
                 height: 60px;
                 display: flex;
@@ -80,6 +81,10 @@
                 user-select: none;
                 cursor: pointer;
                 color: #fff;
+
+                &:disabled {
+                    cursor: not-allowed;
+                }
 
                 &+& {
                     margin-left: 3px
