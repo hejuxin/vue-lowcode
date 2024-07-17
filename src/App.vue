@@ -1,6 +1,7 @@
 <template>
   <div class="app">
-    <Editor v-model="state"></Editor>
+    <Editor v-model="state"></Editor> 
+    <!-- 双向绑定 -->
     <!-- <Editor :modelValue="state" @update:modelValue></Editor> -->
   </div>
 </template>
